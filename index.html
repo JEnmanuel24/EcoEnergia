@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ecoenergía | Laboratorio de optimización</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="brand"><span class="bolt">⚡</span><div><b>ECOENERGÍA</b><small>LABORATORIO DE OPTIMIZACIÓN</small></div></div>
+    <span class="pill">MATEMÁTICA · BACHILLERATO</span>
+  </header>
+
+  <section class="hero">
+    <div><p class="eyebrow">DESCENSO DEL GRADIENTE EN LA VIDA COTIDIANA</p>
+      <h1>¿Cuánta energía necesita<br><em>una vivienda confortable?</em></h1>
+      <p>Explora cómo una decisión cotidiana — ajustar el aire acondicionado — puede convertirse en un problema de optimización matemática.</p>
+    </div>
+    <div class="hero-icon">⌁<small>MINIMIZAR J(T)</small></div>
+  </section>
+
+  <details class="guide" open>
+    <summary>Guía rápida: empieza aquí</summary>
+    <ol>
+      <li>Registra tu código y grupo. El nombre es opcional; puedes explorar sin identificarte.</li>
+      <li>Observa la vivienda, el aire acondicionado y los indicadores.</li>
+      <li>Identifica la temperatura exterior, confort deseado, potencia, horas y tasa de aprendizaje.</li>
+      <li>Escribe una predicción antes de ejecutar el algoritmo.</li>
+      <li>Cambia una variable y mantén las demás constantes para aislar su efecto.</li>
+      <li>Observa el punto actual, el mínimo de la curva y la evolución de las iteraciones.</li>
+      <li>Guarda cada ensayo con una observación.</li>
+      <li>Selecciona dos ensayos para compararlos y revisar qué cambió.</li>
+      <li>Descarga los datos en Excel o CSV para conservarlos.</li>
+    </ol>
+    <p><b>Botones:</b> Iniciar ejecuta el algoritmo; Pausar/continuar detiene o reanuda; Reiniciar vuelve al valor inicial sin borrar ensayos; Restaurar valores recupera la configuración original; Limpiar ensayos elimina los registros previa confirmación. Reducir movimiento desactiva la animación de avance.</p>
+  </details>
+
+  <section class="panel">
+    <div class="section-title"><div><span class="step">01</span><h2>Identificación del estudiante</h2></div><span class="muted">Explorar no requiere identificación</span></div>
+    <div class="fields identity">
+      <label>Código del estudiante *<input id="studentCode" maxlength="40" placeholder="Ej. MAT-025"></label>
+      <label>Nombre (opcional)<input id="studentName" maxlength="80" placeholder="Nombre o seudónimo"></label>
+      <label>Curso o nivel<input id="course" maxlength="40" placeholder="Ej. 2.º BGU"></label>
+      <label>Grupo *<input id="group" maxlength="30" placeholder="Ej. A"></label>
+    </div>
+    <small class="muted">El código y el grupo son necesarios para guardar ensayos. No introduzcas cédulas, contraseñas ni correos.</small>
+  </section>
+
+  <section class="layout">
+    <article class="panel">
+      <div class="section-title"><div><span class="step">02</span><h2>Vivienda interactiva</h2></div><span class="live">● SIMULACIÓN</span></div>
+      <div class="house" id="house">
+        <div class="sun">☀</div><div class="window"><span></span></div>
+        <div class="ac"><b>ECO COOL</b><strong id="roomTemp">24.0 °C</strong><i></i></div>
+        <div class="air a1"></div><div class="air a2"></div><div class="air a3"></div>
+        <div class="plant">♣</div><div class="sofa"><i></i><b></b></div><div class="rug"></div>
+        <div class="floor"></div>
+        <div class="room-caption">AIRE ACONDICIONADO <b id="acStatus">LISTO</b></div>
+      </div>
+      <div class="legend"><span>● Temperatura configurada</span><span>● Flujo de aire ilustrativo</span><span>● Confort objetivo</span></div>
+      <p class="note">La ilustración es conceptual: los tamaños, el flujo de aire y el tiempo no están a escala. Usa Iniciar, Pausar y Reiniciar para controlar el recorrido del algoritmo.</p>
+      <div class="actions">
+        <button id="start" class="primary">▶ Iniciar optimización</button>
+        <button id="pause" disabled>Ⅱ Pausar</button>
+        <button id="reset">↺ Reiniciar</button>
+        <button id="restore" class="quiet">Restaurar valores</button>
+        <label class="check"><input id="reducedMotion" type="checkbox"> Reducir movimiento</label>
+      </div>
+      <p id="status" class="status" aria-live="polite">Ajusta las variables y formula una predicción.</p>
+    </article>
+
+    <article class="panel">
+      <div class="section-title"><div><span class="step">03</span><h2>Variables del experimento</h2></div></div>
+      <p class="muted small">Modifica una variable por vez para identificar su influencia.</p>
+      <div id="controls"></div>
+      <div class="field"><label for="scenario">Escenario de vivienda</label><select id="scenario"><option value="base">Vivienda estándar</option><option value="efficient">Vivienda eficiente</option><option value="hot">Día muy caluroso</option></select><small>El escenario ajusta temperatura exterior, potencia y horas; puedes personalizarlos después.</small></div>
+      <div class="field"><label for="prediction">Mi predicción antes de experimentar</label><textarea id="prediction" rows="3" placeholder="Creo que si aumento/disminuyo... entonces..."></textarea></div>
+    </article>
+  </section>
+
+  <section class="metrics">
+    <div class="metric"><small>TEMPERATURA ACTUAL</small><b id="mTemp">24.0 °C</b><span>Variable optimizada T</span></div>
+    <div class="metric"><small>CONSUMO ESTIMADO</small><b id="mEnergy">— kWh</b><span>En el periodo configurado</span></div>
+    <div class="metric"><small>ÍNDICE OBJETIVO</small><b id="mCost">—</b><span>Menor es mejor</span></div>
+    <div class="metric"><small>ITERACIÓN / GRADIENTE</small><b id="mIter">0</b><span id="mGrad">Gradiente: —</span></div>
+  </section>
+
+  <section class="charts">
+    <article class="panel"><div class="section-title"><div><span class="step">04</span><h2>Función objetivo</h2></div></div>
+      <p class="muted small">Curva teórica para la configuración actual. El marcador indica la temperatura actual y el círculo verde el mínimo teórico.</p>
+      <canvas id="curve" height="270" aria-label="Gráfica de función objetivo según temperatura"></canvas>
+    </article>
+    <article class="panel"><div class="section-title"><div><span class="step">05</span><h2>Convergencia</h2></div></div>
+      <p class="muted small">Evolución del índice objetivo durante las iteraciones del algoritmo.</p>
+      <canvas id="history" height="270" aria-label="Gráfica de convergencia"></canvas>
+    </article>
+  </section>
+
+  <section class="panel">
+    <div class="section-title"><div><span class="step">06</span><h2>Resultados e interpretación automática</h2></div></div>
+    <div class="result-grid"><div><small>ÓPTIMO TEÓRICO</small><b id="optimum">—</b></div><div><small>ÍNDICE EN EL MÍNIMO</small><b id="optCost">—</b></div><div><small>CONSUMO EN EL MÍNIMO</small><b id="optEnergy">—</b></div></div>
+    <p id="explanation" class="explanation" aria-live="polite">La explicación aparecerá al modificar las variables.</p>
+  </section>
+
+  <section class="panel">
+    <div class="section-title"><div><span class="step">07</span><h2>Registro y comparación de ensayos</h2></div></div>
+    <label>Observación del ensayo<textarea id="observation" rows="2" placeholder="¿Qué cambiaste y qué observaste?"></textarea></label>
+    <div class="actions"><button id="save" class="primary">＋ Guardar ensayo</button><button id="compare">Comparar seleccionados</button><button id="clear">Limpiar ensayos</button><button id="csv">Descargar CSV</button><button id="xlsx">Descargar Excel (.xls)</button></div>
+    <p id="storageStatus" class="status" aria-live="polite">Los ensayos se guardan en este navegador cuando confirmas Guardar ensayo.</p>
+    <p class="note">Los datos se guardan en este navegador y dispositivo. No se envían automáticamente al docente ni se reúnen con los de otros estudiantes. Descarga una copia para compartirla o respaldarla.</p>
+    <div id="comparison" class="comparison" aria-live="polite"></div>
+    <div class="table-wrap"><table><thead><tr><th>Comparar</th><th>N.º</th><th>Fecha</th><th>Código / grupo</th><th>T inicial (°C)</th><th>T final (°C)</th><th>Exterior (°C)</th><th>Consumo (kWh)</th><th>Índice J</th><th>Observación</th><th>Acción</th></tr></thead><tbody id="rows"></tbody></table></div>
+  </section>
+
+  <section class="panel">
+    <div class="section-title"><div><span class="step">08</span><h2>Actividad de indagación (30–45 minutos)</h2></div></div>
+    <div class="activity">
+      <div><b>A. Predice · 5 min</b><p>Si mantienes la potencia y las horas constantes, ¿qué sucederá con el consumo estimado al aumentar la temperatura configurada? Escribe tu predicción antes de ejecutar.</p></div>
+      <div><b>B. Experimenta · 10 min</b><p>Usa la vivienda estándar. Mantén exterior, confort, potencia, horas y pesos constantes. Prueba tres temperaturas iniciales distintas y ejecuta el algoritmo.</p></div>
+      <div><b>C. Registra · 8 min</b><p>Guarda al menos cuatro ensayos: cambia solo la temperatura inicial en tres de ellos; en el cuarto cambia solo la temperatura exterior. Anota cada observación.</p></div>
+      <div><b>D. Compara · 7 min</b><p>Selecciona dos ensayos. Identifica semejanzas, diferencias y patrones en la tabla y las gráficas. Si cambiaron varias variables, no atribuyas el efecto a una sola.</p></div>
+      <div><b>E. Explica · 5 min</b><p>Relaciona la pendiente de la función con la dirección del siguiente paso. Explica qué significa que el gradiente se aproxime a cero.</p></div>
+      <div><b>F. Concluye · 5 min</b><p>Responde la pregunta inicial con evidencias de tus ensayos. ¿Qué equilibrio propone el modelo y cuáles son sus límites?</p></div>
+    </div>
+    <label>Conclusión del estudiante<textarea id="conclusion" rows="3" placeholder="Concluyo que... Los datos de mis ensayos muestran..."></textarea></label>
+    <div class="actions"><button id="worksheet">Descargar ficha de indagación (.txt)</button></div>
+  </section>
+
+  <section class="panel">
+    <div class="section-title"><div><span class="step">09</span><h2>Retos de aprendizaje</h2></div></div>
+    <div class="challenge"><b>Reto 1 · Exploración básica</b><p>Ejecuta el algoritmo con los valores iniciales. ¿La temperatura cambia en cada iteración? ¿Qué indica el signo del gradiente?</p><button data-answer="r1">Ver explicación</button><p id="r1" class="answer" hidden>La actualización resta α multiplicado por el gradiente. Si J'(T) es negativo, T aumenta; si es positivo, T disminuye. El algoritmo avanza en la dirección que reduce la función, siempre que la tasa de aprendizaje permita una convergencia estable.</p></div>
+    <div class="challenge"><b>Reto 2 · Predicción</b><p>Sin ejecutar, aumenta el peso del consumo. ¿Hacia qué temperatura esperas que se desplace el mínimo?</p><button data-answer="r2">Ver explicación</button><p id="r2" class="answer" hidden>Al aumentar el peso del consumo, el modelo valora más reducir la demanda eléctrica. Como enfriar más aumenta el consumo estimado, el mínimo tiende a una temperatura configurada más alta, alejándose del confort ideal.</p></div>
+    <div class="challenge"><b>Reto 3 · Comparación controlada</b><p>Guarda dos ensayos cambiando únicamente la potencia del equipo. ¿Cambia la temperatura óptima? ¿Por qué?</p><button data-answer="r3">Ver explicación</button><p id="r3" class="answer" hidden>En este modelo, la potencia multiplica el consumo estimado y por tanto modifica la pendiente de la parte energética de J(T). Con mayor potencia, el costo asignado a enfriar aumenta y el mínimo puede desplazarse hacia una consigna más alta. Compara manteniendo las demás variables constantes.</p></div>
+    <div class="challenge"><b>Reto 4 · Aplicación cotidiana</b><p>Configura un día caluroso y más horas de uso. ¿Qué cambia en el consumo estimado y en el equilibrio óptimo?</p><button data-answer="r4">Ver explicación</button><p id="r4" class="answer" hidden>Más horas y mayor diferencia entre temperatura exterior e interior elevan el consumo estimado. Al aumentar la importancia energética relativa, el modelo puede favorecer una consigna más alta. Es una aproximación; un equipo real tiene ciclos y eficiencia variable.</p></div>
+    <div class="challenge"><b>Reto 5 · Transferencia</b><p>¿Por qué una tasa de aprendizaje demasiado grande puede impedir que el algoritmo encuentre el mínimo?</p><button data-answer="r5">Ver explicación</button><p id="r5" class="answer" hidden>La tasa α determina el tamaño del paso. Si es excesiva, el algoritmo puede saltar de un lado al otro del mínimo o alejarse de él. Una tasa menor suele dar pasos más pequeños, aunque puede requerir más iteraciones.</p></div>
+  </section>
+
+  <section class="panel theory">
+    <div class="section-title"><div><span class="step">10</span><h2>Conceptos y fórmulas de apoyo</h2></div></div>
+    <details><summary>Conceptos fundamentales</summary><p><b>Optimizar:</b> encontrar valores que minimizan o maximizan una función. <b>Función objetivo:</b> expresión que representa aquello que queremos minimizar. <b>Gradiente:</b> en una variable, la derivada; indica la pendiente local. <b>Convergencia:</b> acercamiento progresivo a una solución estable. <b>Tasa de aprendizaje:</b> tamaño del paso de actualización.</p></details>
+    <details><summary>Símbolos, unidades y variables</summary><ul><li>T: temperatura configurada (°C), variable optimizada.</li><li>Text: temperatura exterior (°C).</li><li>Tc: temperatura de confort deseada (°C).</li><li>P: potencia nominal (kW).</li><li>h: duración de uso (h).</li><li>E: consumo estimado (kWh).</li><li>wE y wC: pesos relativos sin unidades; suman 1.</li><li>α: tasa de aprendizaje; unidades °C por unidad de índice.</li><li>J: índice combinado sin unidades.</li>    </ul><p>Constantes de referencia: Eref = 10 kWh y ΔT = 5 °C.</p></details>
+    <details><summary>Fórmulas utilizadas</summary><p>Consumo aproximado: <code>E(T)=P·h·max(0,Text−T)/10</code>.</p><p>Índice: <code>J(T)=wE·E(T)/Eref + wC·((T−Tc)/ΔT)²</code>.</p><p>En el intervalo de refrigeración T menor que Text, derivada: <code>J'(T)=−wE·P·h/(10·Eref)+2·wC·(T−Tc)/(ΔT²)</code>.</p><p>Actualización: <code>T siguiente = T actual − α·J'(T actual)</code>. El mínimo teórico interior se obtiene haciendo J'(T)=0, y se limita al intervalo permitido.</p></details>
+    <details><summary>Ejemplo resuelto paso a paso</summary><p>Usa los parámetros actuales del simulador. La aplicación calcula el mismo ejemplo con su motor matemático:</p><div id="workedExample"></div><p>La iteración real se obtiene aplicando la regla de actualización; el mínimo teórico se obtiene igualando la derivada a cero.</p></details>
+    <details><summary>Errores frecuentes</summary><ul><li>Confundir el valor de la función con su derivada.</li><li>Creer que una tasa de aprendizaje mayor siempre es mejor.</li><li>Cambiar varias variables y atribuir el resultado a una sola.</li><li>Interpretar el índice J como si fueran kWh o dólares.</li><li>Confundir un mínimo del modelo con una recomendación universal de temperatura.</li></ul></details>
+    <details><summary>Supuestos y límites del modelo</summary><p>Se supone potencia nominal constante, periodo de uso fijo, demanda proporcional a la diferencia de temperaturas y pesos constantes durante cada ensayo. No se modelan aislamiento, humedad, ocupación, radiación solar, eficiencia estacional, termostato por ciclos, infiltraciones ni variación de tarifa. El consumo es una estimación didáctica, no una factura ni una medición física.</p></details>
+    <details><summary>Representación simulada frente a vivienda real</summary><p>En una vivienda real el consumo depende de muchos factores y el aire acondicionado no enfría de manera lineal. Aquí se simplifica la relación para que el estudiante pueda estudiar derivadas y optimización en una variable. El mínimo representa el mejor compromiso según los pesos elegidos, no necesariamente el ajuste ideal para todas las personas.</p></details>
+  </section>
+
+  <footer>EcoEnergía · Simulador educativo · Modelo versión 1.0</footer>
+</div>
+<script src="app.js"></script>
+</body>
+</html>
